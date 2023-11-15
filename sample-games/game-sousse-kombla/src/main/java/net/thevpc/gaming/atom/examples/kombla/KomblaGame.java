@@ -9,7 +9,8 @@ import net.thevpc.gaming.atom.Atom;
 /**
  * @author Taha Ben Salah (taha.bensalah@gmail.com)
  */
-public class KomblaGame {
+public class
+KomblaGame {
 
     public static void main(String[] args) {
         Atom.startGame();

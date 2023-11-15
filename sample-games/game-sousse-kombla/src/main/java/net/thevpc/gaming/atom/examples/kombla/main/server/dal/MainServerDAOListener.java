@@ -23,4 +23,6 @@ public interface MainServerDAOListener {
     void onReceiveMoveDown(int playerId);
 
     void onReceiveReleaseBomb(int playerId);
+
+    void onPlayerConnect(String playerName);
 }

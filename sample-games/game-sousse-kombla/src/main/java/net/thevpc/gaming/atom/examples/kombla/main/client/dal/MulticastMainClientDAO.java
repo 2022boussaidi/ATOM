@@ -1,13 +1,22 @@
 package net.thevpc.gaming.atom.examples.kombla.main.client.dal;
 
+import net.thevpc.gaming.atom.examples.kombla.main.server.dal.MainServerDAOListener;
 import net.thevpc.gaming.atom.examples.kombla.main.shared.dal.ProtocolConstants;
 import net.thevpc.gaming.atom.examples.kombla.main.shared.engine.AppConfig;
+import net.thevpc.gaming.atom.examples.kombla.main.shared.model.DynamicGameModel;
 import net.thevpc.gaming.atom.examples.kombla.main.shared.model.StartGameInfo;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.*;
 
 public class MulticastMainClientDAO implements MainClientDAO{
     private DatagramSocket socket;
+    MulticastSocket clientSocket;
+
+    private InetAddress groupAddress;
+    private int groupPort = 9999;
     @Override
     public void start(MainClientDAOListener listener, AppConfig properties) {
 
@@ -62,8 +71,8 @@ public class MulticastMainClientDAO implements MainClientDAO{
     @Override
     public void sendMoveUp() {
         try {
-            byte moveLeft = ProtocolConstants.UP;
-            byte[] sendData = {moveLeft};
+            byte MoveUp = ProtocolConstants.UP;
+            byte[] sendData = {MoveUp};
             DatagramPacket packet = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("localhost"), 9999);
             socket.send(packet);
         } catch (Exception ex) {
@@ -74,8 +83,8 @@ public class MulticastMainClientDAO implements MainClientDAO{
     @Override
     public void sendMoveDown() {
         try {
-            byte moveLeft = ProtocolConstants.DOWN;
-            byte[] sendData = {moveLeft};
+            byte MoveDown = ProtocolConstants.DOWN;
+            byte[] sendData = {MoveDown};
             DatagramPacket packet = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("localhost"), 9999);
             socket.send(packet);
         } catch (Exception ex) {
@@ -86,12 +95,38 @@ public class MulticastMainClientDAO implements MainClientDAO{
     @Override
     public void sendFire() {
         try {
-            byte moveLeft = ProtocolConstants.FIRE;
-            byte[] sendData = {moveLeft};
+            byte Fire = ProtocolConstants.FIRE;
+            byte[] sendData = {Fire};
             DatagramPacket packet = new DatagramPacket(sendData, sendData.length, InetAddress.getByName("localhost"), 9999);
             socket.send(packet);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-}
+    public void onLoopReceiveModelChanged(MainClientDAOListener listener) {
+        try {
+            byte[] buffer = new byte[1024];
+            clientSocket = new MulticastSocket(groupPort);
+            clientSocket.joinGroup(groupAddress);
+
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                clientSocket.receive(packet);
+
+                // Deserialize the received object from the packet data
+                ByteArrayInputStream byteStream = new ByteArrayInputStream(packet.getData());
+                ObjectInputStream inputStream = new ObjectInputStream(byteStream);
+                DynamicGameModel model = (DynamicGameModel) inputStream.readObject();
+
+                // Notify the listener about the model change
+                listener.onModelChanged(model);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Error receiving multicast model", ex);
+        } finally {
+            if (clientSocket != null && !clientSocket.isClosed()) {
+                clientSocket.close();
+            }
+        }
+    }
+    }

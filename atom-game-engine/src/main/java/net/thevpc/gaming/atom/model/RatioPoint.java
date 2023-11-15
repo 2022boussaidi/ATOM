@@ -18,7 +18,7 @@ public class RatioPoint extends Point {
         this(x, y, 0);
     }
 
-    public RatioPoint(float x, float y, float z) {
+   public RatioPoint(float x, float y, float z) {
         this.x = checkVal(x);
         this.y = checkVal(y);
         this.z = checkVal(z);

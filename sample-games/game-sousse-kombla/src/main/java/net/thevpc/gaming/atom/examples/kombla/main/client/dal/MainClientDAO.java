@@ -33,4 +33,5 @@ public interface MainClientDAO {
     public void sendMoveDown();
 
     public void sendFire();
+  public   void onLoopReceiveModelChanged(MainClientDAOListener listener);
 }

@@ -57,12 +57,19 @@ public class MainServerEngine extends BaseMainEngine {
             public void onReceiveMoveDown(int playerId) {
                 move(playerId, Orientation.SOUTH);
             }
+            @Override
+            public void onPlayerConnect(String playerName) {
+                // Add your logic for handling player connection here
+                System.out.println("Player connected: " + playerName);
 
+
+            }
             @Override
             public void onReceiveReleaseBomb(int playerId) {
                 releaseBomb(playerId);
             }
         }, getAppConfig(getGameEngine()));
+
     }
 
 

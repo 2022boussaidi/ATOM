@@ -11,4 +11,5 @@ public interface MainClientDAOListener {
      * @param model
      */
     public void onModelChanged(DynamicGameModel model);
+
 }
